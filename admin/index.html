@@ -55,14 +55,15 @@
         </div>
     </div>
 
-
+    <!-- 引入http.js文件 -->
+    <script src="./libs/http.js"></script>
     <script>
         //入口函数
         $(function () {
             //发送ajax请求
             $.ajax({
                 type: 'get',
-                url: 'http://localhost:8080/api/v1/admin/user/info',
+                url: BigNew.user_info,
                 success: function (backData) {
                     $('.user_info>img').attr('src', backData.data.userPic);
                     $('.user_info>span>i').text(backData.data.nickname);
@@ -70,6 +71,16 @@
                 }
             })
 
+            //为退出按钮添加点击事件
+            $('.logout').on('click', function (e) {
+                //阻止a链接的默认跳转
+                e.preventDefault();
+                //删除token
+                localStorage.removeItem('token');
+                alert("退出成功！");
+                //跳转到登录页面
+                window.location.href = "./login.html";
+            })
         })
     </script>
 </body>
