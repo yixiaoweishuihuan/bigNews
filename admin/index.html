@@ -27,7 +27,8 @@
         <div class="menu">
             <div class="level01 active"><a href="./main_count.html" target="myIframe"><i
                         class="iconfont icon-yidiandiantubiao04"></i><span>首页</span></a></div>
-            <div class="level01"><a href="./article_list.html" target="myIframe"><i class="iconfont icon-icon-article"></i><span>文章管理</span><b
+            <div class="level01"><a href="./article_list.html" target="myIframe"><i
+                        class="iconfont icon-icon-article"></i><span>文章管理</span><b
                         class="iconfont icon-arrowdownl"></b></a></div>
             <ul class="level02">
                 <li><a href="./article_list.html" target="myIframe"><i
@@ -86,20 +87,24 @@
             })
 
             //为左侧列表添加点击事件
-            $('.level01').on('click',function(){
+            $('.level01').on('click', function () {
                 //排他思想：点击的div添加active类，其他兄弟div移除active类
                 $(this).addClass('active').siblings('div').removeClass('active');
                 //当点击第二个div时，如果ul是显示的就隐藏，如果ul是隐藏的就显示出来
-                if($(this).index()==1){
+                if ($(this).index() == 1) {
                     $('.level02').slideToggle();
 
+                    //当点击第二个div时，小箭头添加或删除类：rotate0
+                    $(this).find('b').toggleClass('rotate0');
+
                     //当点击第二个div时，触发第一个li的点击事件
-                    $('.level02>li').eq(0).trigger('click');
+                    // $('.level02>li').eq(0).trigger('click');
+                    $('.level02>li:eq(0)').trigger('click');
                 }
             })
 
             //为左侧列表栏中的ul里的li添加点击事件
-            $('.level02>li').on('click',function(){
+            $('.level02>li').on('click', function () {
                 $(this).addClass('active').siblings('li').removeClass('active');
             })
 
