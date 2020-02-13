@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
@@ -93,8 +93,10 @@
                 let file = this.files[0];
                 //为选中的文件添加一个地址
                 let url = URL.createObjectURL(file);
+
                 //将url设置给预览的图
                 $('.user_pic').attr('src', url);
+
             })
 
             //为修改按钮添加一个点击事件
