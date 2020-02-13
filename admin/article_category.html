@@ -63,13 +63,15 @@
                 </div>
                 <div class="modal-body">
                     <form>
+                        <!-- 隐藏域 存id -->
+                        <input type="hidden" name="id" id="data-id" value="">
                         <div class="form-group">
                             <label for="recipient-name" class="control-label">分类名称:</label>
-                            <input type="text" class="form-control" id="recipient-name">
+                            <input type="text" class="form-control" id="recipient-name" name="name">
                         </div>
                         <div class="form-group">
                             <label for="message-text" class="control-label">分类别名:</label>
-                            <input class="form-control" id="message-text">
+                            <input class="form-control" id="message-text" name="slug">
                         </div>
                     </form>
                 </div>
@@ -99,25 +101,29 @@
     </script>
 
     <script>
-        //入口函数
+        //入口函
         $(function () {
-            //发送ajax请求获取文章类别数据
-            $.ajax({
-                url: BigNew.category_list,
-                success: function (backData) {
-                    if (backData.code == 200) {
-                        let resHtml = template('article', backData);
-                        //将获取到的文章数据添加到tbody里
-                        $('tbody').html(resHtml);
+            getData();
+            function getData() {
+                //发送ajax请求获取文章类别数据
+                $.ajax({
+                    url: BigNew.category_list,
+                    success: function (backData) {
+                        if (backData.code == 200) {
+                            let resHtml = template('article', backData);
+                            //将获取到的文章数据添加到tbody里
+                            $('tbody').html(resHtml);
+                        }
                     }
-                }
-            })
+                })
+            }
 
             //判断 到底是新增分类按钮还是编辑按钮弹出来的模态框
             //show.bs.modal	show 方法调用之后立即触发该事件。
             //如果是通过点击某个作为触发器的元素，则此元素可以通过事件的 relatedTarget 属性进行访问。
             $('#myModal').on('show.bs.modal', function (e) {
-                // console.log(e.relatedTarget);
+                //清空表单
+                $('#myModal form')[0].reset();
 
                 if (e.relatedTarget == $('#xinzengfenlei')[0]) {
                     $('#myModalLabel').text("新增分类：");
@@ -125,18 +131,99 @@
                 } else {
                     $('#myModalLabel').text("编辑分类：");
                     $('#btnAddOrEdit').text("编辑").addClass('btn-success').removeClass('btn-primary');
+
+                    //获取文章分类和文章别名 将获取到的值赋值给模态框的相应的input里
+                    $('#recipient-name').val($(e.relatedTarget).parent().parent().children('td').eq(0).text());
+                    $('#message-text').val($(e.relatedTarget).parent().parent().children('td').eq(1).text());
+                    //为隐藏域设置value值
+                    $('#data-id').val($(e.relatedTarget).attr('data-id'));
                 }
             })
 
+            //为 新增/编辑按钮 添加一个点击事件
+            $('#btnAddOrEdit').on('click', function () {
+                //判断 新增/编辑 按钮的时候是点的新增还是编辑
+                if ($(this).hasClass('btn-primary')) {
+                    //新增按钮
+                    //获取 分类名称和分类别名
+                    let recipientName = $('#recipient-name').val().trim();
+                    let messageText = $('#message-text').val().trim();
+                    //发送ajax请求 添加分类
+                    $.ajax({
+                        type: 'post',
+                        url: BigNew.category_add,
+                        data: {
+                            name: recipientName,
+                            slug: messageText
+                        },
+                        success: function (backData) {
+                            if (backData.code == 201) {
+                                //手动隐藏模态框
+                                $('#myModal').modal('hide');
+                                //从新加载数据
+                                getData();
+                            }
+                        }
+                    })
 
+                } else {
+                    //编辑按钮
+                    //获取 id、分类名称和分类别名
+                    //第一种方法：
+                    // let id = $('#data-id').val();
+                    // let recipientName = $('#recipient-name').val().trim();
+                    // let messageText = $('#message-text').val().trim();
 
+                    //第二种方法：
+                    let data = $('#myModal form').serialize();
 
+                    //发送ajax请求，保存编辑后的数据
+                    $.ajax({
+                        type: 'post',
+                        url: BigNew.category_edit,
+                        // data: {
+                        //     id: id,
+                        //     name: recipientName,
+                        //     slug: messageText
+                        // },
+                        data:data,
+                        success: function (backData) {
+                            // if (backData.code == 200) {
+                            //显示提示信息
+                            // alert(backData.msg);
+                            //手动隐藏模态框
+                            $('#myModal').modal('hide');
+                            //刷新页面
+                            getData();
+                            // }
+                        }
+                    })
+                }
+            })
 
             //为删除按钮添加一个点击事件
-            // $('tbody').on('click','a.btn-danger',function(){
-            //     console.log($(this).attr('data-id'));
+            $('tbody').on('click', 'a.btn-danger', function () {
+                //获取被点击的删除按钮的id
+                let id = $(this).attr('data-id');
+                //询问是否真的删除
+                if (confirm('确认要删除吗')) {
+                    //发送ajax请求删除类别
+                    $.ajax({
+                        type: 'post',
+                        url: BigNew.category_delete,
+                        data: {
+                            id: id
+                        },
+                        success: function (backData) {
+                            if (backData.code == 204) {
+                                //刷新页
+                                getData();
+                            }
+                        }
+                    })
 
-            // })
+                }
+            })
         })
     </script>
 </body>
