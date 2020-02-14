@@ -121,6 +121,7 @@
             //判断 到底是新增分类按钮还是编辑按钮弹出来的模态框
             //show.bs.modal	show 方法调用之后立即触发该事件。
             //如果是通过点击某个作为触发器的元素，则此元素可以通过事件的 relatedTarget 属性进行访问。
+
             $('#myModal').on('show.bs.modal', function (e) {
                 //清空表单
                 $('#myModal form')[0].reset();
@@ -182,11 +183,11 @@
                         type: 'post',
                         url: BigNew.category_edit,
                         // data: {
-                        //     id: id,
+                        //     id: ID,
                         //     name: recipientName,
                         //     slug: messageText
                         // },
-                        data:data,
+                        data: data,
                         success: function (backData) {
                             // if (backData.code == 200) {
                             //显示提示信息
@@ -203,8 +204,13 @@
 
             //为删除按钮添加一个点击事件
             $('tbody').on('click', 'a.btn-danger', function () {
+
+                //获取当前点击的删除按钮
+                let that = $(this);
+
                 //获取被点击的删除按钮的id
                 let id = $(this).attr('data-id');
+
                 //询问是否真的删除
                 if (confirm('确认要删除吗')) {
                     //发送ajax请求删除类别
@@ -216,8 +222,12 @@
                         },
                         success: function (backData) {
                             if (backData.code == 204) {
-                                //刷新页
-                                getData();
+                                //第一种方法：刷新页
+                                // getData();
+
+                                //第二种方法：在html页面删除此行
+                                that.parent().parent().remove();
+
                             }
                         }
                     })
