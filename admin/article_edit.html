@@ -131,7 +131,8 @@
             //获取id
             let id = window.location.search.split('=')[1];
             //发送ajax请求 根据id查找文章详细信息
-            $.ajax({
+            setTimeout(function(){
+                $.ajax({
                 url: BigNew.article_search,
                 data: {
                     id: id
@@ -146,6 +147,7 @@
                     }
                 }
             })
+            },0)
 
 
             //封装函数 subArticle() 为修改后的文章提交到后台数据
