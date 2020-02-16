@@ -279,6 +279,21 @@
       {{/each}}
     </script>
 
+    <!-- 六：创建一个 所有文章类别 模板1 -->
+    <script id="articleType" type="text/html">
+        {{each data v}}
+          <li><a href="./list.html?id={{v.id}}">{{v.name}}</a></li>
+        {{/each}}
+    </script>
+
+    <!-- 七：创建一个 所有文章类别 模板2 -->
+    <script id="article-type" type="text/html">
+        <li class="up"></li>
+        {{each data v}}
+        <li><a href="./list.html?id={{v.id}}">{{v.name}}</a></li>
+        {{/each}}
+    </script>
+
     <script>
         //入口函数
         $(function () {
@@ -338,9 +353,41 @@
                 }
             })
 
+            //六\七：发送ajax请求 获取文章全部分类
+            $.ajax({
+                url: 'http://localhost:8080/api/v1/index/category',
+                success: function (backData) {
+                    if (backData.code == 200) {
+                        let resHtml = template('articleType', backData);
+                        $('.left_menu').html(resHtml);
+                        let resHtml1 = template('article-type', backData);
+                        $('.level_two').html(resHtml1);
+                    }
+                }
+            })
 
+            //八：关键词搜索
+            //为搜索按钮添加点击事件
+            $('.search_btn').on('click', function () {
+                let keyWord = $('.search_txt').val().trim();
+                if (keyWord == '') {
+                    alert('请输入关键词！');
+                    return;
+                } else if (isNaN(parseInt(keyWord)) == false) {
+                    alert('请输入文本内容！');
+                } else {
+                    window.location.href = "./list.html?keyWord=" + keyWord;
+                }
+            })
 
+            //为搜索框添加一个按键按下事件
+            $('.search_txt').on('keydown', function (e) {
+                if (e.keyCode == 13) {
+                    $('.search_btn').trigger('click');
+                }
+            })
 
+            // -----------------------------------------
 
         })
 
