@@ -12,6 +12,12 @@
     <link rel="stylesheet" href="css/main.css">
     <!-- jq -->
     <script src="./libs/jquery-1.12.4.min.js"></script>
+    <!-- 日期jeData插件 css\js文件引入-->
+    <link rel="stylesheet" href="./libs/jedate/css/jeDate-test.css">
+    <link rel="stylesheet" href="./libs/jedate/css/jedate.css">
+    <script src="./libs/jedate/js/jedate.js"></script>
+    <!-- 引入副文本编辑器js文件 -->
+    <script src="./libs/wangEditor/wangEditor.min.js"></script>
     <!-- 模板引擎 -->
     <script src="./libs/template-web.js"></script>
 </head>
@@ -49,13 +55,20 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <!-- 日期jeData插件 -->
                     <label class="col-sm-2 control-label">发布时间：</label>
-                    <div class="col-sm-4">
+                    <div class="jeinpbox col-sm-4">
+                        <input type="text" class="jeinput" id="testico" placeholder="YYYY-MM-DD" name="date">
+                        <div class="icons jebtns"
+                            onclick="jeDate('#testico',{zIndex:20990,trigger:false,format: 'YYYY-MM-DD'})">
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章内容：</label>
-                    <div class="col-sm-10">
+                    <!-- 富文本编辑器 -->
+                    <div id="editor" class="col-sm-10" name="content">
+                        <p>欢迎使用 <b>wangEditor</b> 富文本编辑器</p>
                     </div>
                 </div>
                 <div class="form-group">
@@ -67,9 +80,115 @@
             </form>
         </div>
     </div>
+
+    <!-- 创建一个文章类别模板 -->
+    <script id="article_list" type="text/html">
+        {{each data v}}
+        <option value="{{v.id}}">{{v.name}}</option>
+        {{/each}}
+    </script>
+
+    <!-- 引入http.js文件 -->
+    <script src="./libs/http.js"></script>
+
     <script>
-        let id = window.location.search.split('=')[1];
-        console.log(id);
+        //入口函数
+        $(function () {
+            //jeData日期插件
+            jeDate("#testico", {
+                format: "YYYY-MM-DD",
+                isTime: false,
+                minDate: "2014-09-19 00:00:00",
+                zIndex: 20990
+            })
+
+            //富文本编辑器
+            var E = window.wangEditor;
+            var editor = new E('#editor');
+            editor.create();
+
+            //图片预览
+            $('#inputCover').on('change', function () {
+                //获取选中的文件 并创建地址
+                let url = URL.createObjectURL(this.files[0]);
+                //将选中的文件地址设置给预览区
+                $('.article_cover').attr('src', url);
+            })
+
+            //发送ajax请求获取文章列表分类
+            $.ajax({
+                url: BigNew.category_list,
+                success: function (backData) {
+                    if (backData.code == 200) {
+                        //调用模板引擎template方法
+                        let resHtml = template('article_list', backData);
+                        //将取到的文章列表分类数据渲染到文章分裂列表
+                        $('.category').html(resHtml);
+                    }
+                }
+            })
+
+            //获取id
+            let id = window.location.search.split('=')[1];
+            //发送ajax请求 根据id查找文章详细信息
+            $.ajax({
+                url: BigNew.article_search,
+                data: {
+                    id: id
+                },
+                success: function (backData) {
+                    if (backData.code == 200) {
+                        $('#inputTitle').val(backData.data.title);
+                        $('.article_cover').attr('src', backData.data.cover);
+                        $('.category').val(backData.data.categoryId);
+                        $('#testico').val(backData.data.date);
+                        editor.txt.html(backData.data.content);
+                    }
+                }
+            })
+
+
+            //封装函数 subArticle() 为修改后的文章提交到后台数据
+            function subArticle(state) {
+                //实例化一个FormData对象
+                let data = new FormData($('form')[0]);
+                data.append('id', id);
+                data.append('content', editor.txt.text());
+                data.append('state', state);
+                //发送ajax请求 提交编辑后的文章
+                $.ajax({
+                    type: 'post',
+                    url: BigNew.article_edit,
+                    data: data,
+                    contentType: false,
+                    processData: false,
+                    success: function (backData) {
+                        if (backData.code == 200) {
+                            alert(backData.msg);
+                            //跳转到上一个页面
+                            window.history.back();
+                        }
+                    }
+                })
+            }
+
+            //为修改按钮添加点击事件
+            $('.btn-edit').on('click', function (e) {
+                //阻止按钮默认提交
+                e.preventDefault();
+                // 获取个表单内容，发送ajax请求 将数据存为草稿
+                subArticle('已发布');
+            })
+
+            //为存为草稿按钮添加一个点击事件
+            $('.btn-draft').on('click', function (e) {
+                //阻止默认提交
+                e.preventDefault();
+                // 获取个表单内容，发送ajax请求 将数据存为草稿
+                subArticle('');
+            })
+
+        })
 
     </script>
 </body>
