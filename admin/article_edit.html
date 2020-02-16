@@ -153,7 +153,7 @@
                 //实例化一个FormData对象
                 let data = new FormData($('form')[0]);
                 data.append('id', id);
-                data.append('content', editor.txt.text());
+                data.append('content', editor.txt.html());
                 data.append('state', state);
                 //发送ajax请求 提交编辑后的文章
                 $.ajax({
