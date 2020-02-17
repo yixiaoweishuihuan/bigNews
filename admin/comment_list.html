@@ -160,6 +160,132 @@
 
     </div>
   </div>
+
+  <!-- 创建一个 评论列表模板 -->
+  <script id="content-temp" type="text/html">
+    {{each data.data v}}
+    {{if v.state=="待审核"}}
+      <tr class="danger">
+    {{else}}
+      <tr>
+    {{/if}}
+        <td>{{v.author}}</td>
+        <td>{{v.content}}</td>
+        <td>{{v.title}}</td>
+        <td>{{v.date}} {{v.time}}</td>
+        <td>{{v.state}}</td>
+        <td class="text-center">
+          {{if v.state=="待审核"}}
+          <a href="javascript:void(0);;" content_id="{{v.id}}" class="btn btn-info btn-xs ok">批准</a>
+          {{else if v.state=="已通过"}}
+          <a href="javascript:void(0);;" content_id="{{v.id}}" class="btn btn-warning btn-xs no">拒绝</a>
+          {{/if}}
+          <a href="javascript:void(0);;" content_id="{{v.id}}" class="btn btn-danger btn-xs del">删除</a>
+        </td>
+      </tr>
+    {{/each}}
+  </script>
+
+  <!-- 引入 http.js 地址文件 -->
+  <script src="./libs/http.js"></script>
+
+  <script>
+    //入口函数
+    $(function () {
+      //一：进入页面 发送ajax请求 获取评论列表
+      getData();
+
+      //getData函数封装
+      function getData() {
+        $.ajax({
+          url: BigNew.comment_list,
+          data: {
+            page: 1,
+            perpage: 5,
+          },
+          success: function (backData) {
+            let resHtml = template('content-temp', backData);
+            $('tbody').html(resHtml);
+          }
+        })
+      }
+
+      //一下三个动态生成的数据 委托注册
+
+      // 二：批准
+      $('tbody').on('click', '.ok', function (e) {
+        //阻止默认跳转
+        e.preventDefault;
+        //获取评论id
+        let contentId = $(this).attr('content_id');
+        //发送ajax批准请求
+        $.ajax({
+          type: 'post',
+          url: BigNew.comment_pass,
+          data: {
+            id: contentId
+          },
+          success: function (backData) {
+            if (backData.code == 200) {
+              alert('批准通过！');
+              getData();
+            }
+          }
+        })
+      })
+
+
+      //三：拒绝
+      $('tbody').on('click', '.no', function (e) {
+        //阻止默认跳转
+        e.preventDefault;
+        //获取评论id
+        let contentId = $(this).attr('content_id');
+        //发送ajax拒绝请求
+        $.ajax({
+          type: 'post',
+          url: BigNew.comment_reject,
+          data: {
+            id: contentId
+          },
+          success: function (backData) {
+            if (backData.code == 200) {
+              alert('拒绝成功！');
+              getData();
+            }
+          }
+        })
+      })
+
+
+      //四：删除
+      $('tbody').on('click', '.del', function (e) {
+        //阻止默认跳转
+        e.preventDefault;
+        if (confirm('请确认是否删除！')) {
+          //获取评论id
+          let contentId = $(this).attr('content_id');
+          //发送ajax删除请求
+          $.ajax({
+            type: 'post',
+            url: BigNew.comment_delete,
+            data: {
+              id: contentId
+            },
+            success: function (backData) {
+              if (backData.code == 200) {
+                alert('删除成功！');
+                getData();
+              }
+            }
+          })
+        }
+      })
+    })
+
+
+  </script>
+
 </body>
 
 </html>
