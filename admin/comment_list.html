@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="css/iconfont.css">
   <link rel="stylesheet" href="css/main.css">
   <script src="./libs/jquery-1.12.4.min.js"></script>
+  <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
+  <script src="./libs/jquery.twbsPagination.js"></script>
   <script src="./libs/template-web.js"></script>
 </head>
 
@@ -142,7 +144,7 @@
         </tbody>
       </table>
       <div class="row text-center">
-        <ul class="pagination pagination-sm">
+        <!-- <ul class="pagination pagination-sm">
           <li class="page-item first disabled"><a href="#" class="page-link">首页</a></li>
           <li class="page-item prev disabled"><a href="#" class="page-link">上一页</a></li>
           <li class="page-item active"><a href="#" class="page-link">1</a></li>
@@ -154,7 +156,7 @@
           <li class="page-item"><a href="#" class="page-link">7</a></li>
           <li class="page-item next"><a href="#" class="page-link">下一页</a></li>
           <li class="page-item last"><a href="#" class="page-link">尾页</a></li>
-        </ul>
+        </ul> -->
         <ul id="pagination" class="pagination-sm"></ul>
       </div>
 
@@ -192,23 +194,48 @@
   <script>
     //入口函数
     $(function () {
-      //一：进入页面 发送ajax请求 获取评论列表
-      getData();
+
+      //定义一个全局变量来储存当前页
+      let myPage = 1;
 
       //getData函数封装
-      function getData() {
+      function getData(myPage, backCall) {
         $.ajax({
           url: BigNew.comment_list,
           data: {
-            page: 1,
-            perpage: 5,
+            page: myPage,
+            perpage: 3,
           },
           success: function (backData) {
             let resHtml = template('content-temp', backData);
             $('tbody').html(resHtml);
+
+            //回调函数判断
+            if (backCall != null) {
+              backCall(backData);
+            }
           }
         })
       }
+
+      //一：进入页面 发送ajax请求 获取评论列表
+      getData(myPage, function (backData) {
+        $('#pagination').twbsPagination({
+          totalPages: backData.data.totalPage,
+          visiblePages: 5,
+          first: '首页',
+          prev: '上一页',
+          next: '下一页',
+          last: '尾页',
+          onPageClick: function (event, page) {
+            myPage = page;
+            //重新获取指定page页的评论列表
+            getData(myPage, null);
+          }
+        })
+      });
+
+
 
       //一下三个动态生成的数据 委托注册
 
@@ -228,7 +255,7 @@
           success: function (backData) {
             if (backData.code == 200) {
               alert('批准通过！');
-              getData();
+              getData(myPage, null);
             }
           }
         })
@@ -251,7 +278,7 @@
           success: function (backData) {
             if (backData.code == 200) {
               alert('拒绝成功！');
-              getData();
+              getData(myPage, null);
             }
           }
         })
@@ -275,7 +302,14 @@
             success: function (backData) {
               if (backData.code == 200) {
                 alert('删除成功！');
-                getData();
+
+                //因为删除评论后可能会减少总页数 所以要重新渲染分页插件 并重新生成当前页码的评论列表数据
+                getData(myPage, function (backData) {
+                  if (backData.data.data.length == 0) {
+                    myPage--;
+                  }
+                  $('#pagination').twbsPagination('changeTotalPages', backData.data.totalPage, myPage);
+                })
               }
             }
           })

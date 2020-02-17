@@ -234,8 +234,7 @@
         <div class="common_news_list">
             <a href="./article.html?id={{v.id}}" class="list_pic"><img src="{{v.cover}}" alt=""></a>
             <h4><a href="./article.html?id={{v.id}}">{{v.title}}</a></h4>
-            <p>{{v.intro}}
-            </p>
+            <p>{{v.intro}}</p>
             <div class="new_info">
                 <span>标签：{{v.category}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<i class="fa fa-eye"></i>&nbsp;阅读( {{v.read}}
                     )&nbsp;&nbsp;&nbsp;<i class="fa fa-commenting"></i>&nbsp;评论( {{v.comments}} )</span>
@@ -372,9 +371,9 @@
                 if (keyWord == '') {
                     alert('请输入关键词！');
                     return;
-                } else if (isNaN(parseInt(keyWord)) == false) {
+                } /*else if (isNaN(parseInt(keyWord)) == false) {
                     alert('请输入文本内容(非数值)！');
-                } else {
+                }*/ else {
                     window.location.href = "./list.html?keyWord=" + keyWord;
                 }
             })

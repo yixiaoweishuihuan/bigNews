@@ -68,7 +68,7 @@
                     <label for="inputEmail3" class="col-sm-2 control-label">文章内容：</label>
                     <!-- 富文本编辑器 -->
                     <div id="editor" class="col-sm-10" name="content">
-                        <p>欢迎使用 <b>wangEditor</b> 富文本编辑器</p>
+                        <!-- <p>欢迎使用 <b>wangEditor</b> 富文本编辑器</p> -->
                     </div>
                 </div>
                 <div class="form-group">
@@ -136,6 +136,7 @@
                 let data = new FormData($('form')[0]);
                 data.append('content', editor.txt.html());
                 data.append('state', state);
+
                 //发送ajax请求 提交编辑后的文章
                 $.ajax({
                     type: 'post',

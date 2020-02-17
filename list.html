@@ -276,6 +276,29 @@
     <script>
         //入口函数
         $(function () {
+
+            //将关键词搜索封装成一个函数 getData();
+            function getData(value) {
+                $.ajax({
+                    url: 'http://localhost:8080/api/v1/index/search',
+                    data: {
+                        key: value
+                    },
+                    success: function (backData) {
+                        if (backData.code == 200) {
+                            //判断此类是否有数据
+                            if (backData.data.data.length > 0) {
+                                let resHtml = template('article_list', backData);
+                                $('div.left_con.setfr').html('<div class="list_title"><h3>' + value + '</h3></div>' + resHtml);
+                            } else {
+                                $('div.left_con.setfr').html('<div class="list_title"><h3>没有数据！</h3></div>');
+                            }
+                        }
+                    }
+                })
+            }
+
+            //获取url地址里的id和关键词
             let value1 = window.location.search.split('=')[0];//?id或？keyWord
             let value2 = window.location.search.split('=')[1];
             //判断进入文章列表页的方式
@@ -304,23 +327,7 @@
             } else {
                 //通过关键词搜索进来的
                 value2 = decodeURI(value2);
-                $.ajax({
-                    url: 'http://localhost:8080/api/v1/index/search',
-                    data: {
-                        key: value2
-                    },
-                    success: function (backData) {
-                        if (backData.code == 200) {
-                            //判断此类是否有数据
-                            if (backData.data.data.length > 0) {
-                                let resHtml = template('article_list', backData);
-                                $('div.left_con.setfr').html('<div class="list_title"><h3>' + value2 + '</h3></div>' + resHtml);
-                            } else {
-                                $('div.left_con.setfr').html('<div class="list_title"><h3>没有数据！</h3></div>');
-                            }
-                        }
-                    }
-                })
+                getData(value2);
             }
 
             //三: 发送ajax请求 获取文章热门排行数据
@@ -369,10 +376,26 @@
             })
 
 
+            //八：关键词搜索
+            //为搜索按钮添加点击事件
+            $('.search_btn').on('click', function () {
+                let keyWord = $('.search_txt').val().trim();
+                if (keyWord == '') {
+                    alert('请输入关键词！');
+                    return;
+                }/* else if (isNaN(parseInt(keyWord)) == false) {
+                    alert('请输入文本内容(非数值)！');
+                }*/ else {
+                    getData(keyWord);
+                }
+            })
 
-
-
-
+            //为搜索框添加一个按键按下事件
+            $('.search_txt').on('keydown', function (e) {
+                if (e.keyCode == 13) {
+                    $('.search_btn').trigger('click');
+                }
+            })
         })
 
     </script>
