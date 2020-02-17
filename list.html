@@ -227,6 +227,84 @@
     </div>
     <!-- 导包template -->
     <script src="./js/template-web.js"></script>
+
+    <!-- 创建一个 文章列表 模板 -->
+    <script id="article_list" type="text/html">
+        {{each data.data v}}
+         <div class="common_news_list">
+            <a href="./article.html?id={{v.id}}" class="list_pic"><img src="{{v.cover}}" alt=""></a>
+            <h4><a href="./article.html?id={{v.id}}">{{v.title}} </a></h4>
+            <p>{{v.content}}
+            </p>
+            <div class="new_info">
+                <span>标签：{{v.category}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<i class="fa fa-eye"></i>&nbsp;阅读( {{v.read}}
+                    )&nbsp;&nbsp;&nbsp;<i class="fa fa-commenting"></i>&nbsp;评论( {{v.comments}} )</span>
+                <b>发布于 {{v.date}}</b>
+            </div>
+         </div>
+        {{/each}}
+    </script>
+
+    <script>
+        //入口函数
+        $(function () {
+            let value1 = window.location.search.split('=')[0];//?id或？keyWord
+            let value2 = window.location.search.split('=')[1];
+            //判断进入文章列表页的方式
+            if (value1 == '') {
+                //直接输入地址进来的
+                window.location.href = "./index.html";
+            } else if (value1 == '?id') {
+                //通过点击分类按钮进来的
+                $.ajax({
+                    url: 'http://localhost:8080/api/v1/index/search',
+                    data: {
+                        type: value2
+                    },
+                    success: function (backData) {
+                        if (backData.code == 200) {
+                            //判断此类是否有数据
+                            if (backData.data.data.length > 0) {
+                                let resHtml = template('article_list', backData);
+                                $('div.left_con.setfr').html('<div class="list_title"><h3>' + backData.data.data[0].category + '</h3></div>' + resHtml);
+                            } else {
+                                $('div.left_con.setfr').html('<div class="list_title"><h3>没有数据！</h3></div>');
+                            }
+                        }
+                    }
+                })
+            } else {
+                //通过关键词搜索进来的
+                value2 = decodeURI(value2);
+                $.ajax({
+                    url: 'http://localhost:8080/api/v1/index/search',
+                    data: {
+                        key: value2
+                    },
+                    success: function (backData) {
+                        if (backData.code == 200) {
+                            //判断此类是否有数据
+                            if (backData.data.data.length > 0) {
+                                let resHtml = template('article_list', backData);
+                                $('div.left_con.setfr').html('<div class="list_title"><h3>' + value2 + '</h3></div>' + resHtml);
+                            } else {
+                                $('div.left_con.setfr').html('<div class="list_title"><h3>没有数据！</h3></div>');
+                            }
+                        }
+                    }
+                })
+            }
+
+
+
+
+
+
+
+
+        })
+
+    </script>
 </body>
 
 </html>

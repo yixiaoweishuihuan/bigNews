@@ -207,7 +207,64 @@
 
     <!-- 引入模板引擎js文件 -->
     <script src="./js/template-web.js"></script>
+    <!-- 创建一个 文章详情页模 板 -->
+    <script id="article-list" type="text/html">
+        {{author}} 发布于 {{date}}   分类: {{category}}   阅读:
+                ({{read}})   评论: ({{comments}})
+    </script>
+
     <script src="./js/jquery-1.12.4.min.js"></script>
+
+    <script>
+        //入口函数
+        $(function () {
+            //获取文章id
+            let articleId = window.location.search.split('=')[1];
+            //判断进入此页的方式
+            if (articleId == undefined) {
+                //输入链接直接进来的
+                window.location.href = "./index.html";
+            } else {
+                //点击文章链接进来的 发送ajax请求获取文章详细信息
+                $.ajax({
+                    url: 'http://localhost:8080/api/v1/index/article',
+                    data: {
+                        id: articleId
+                    },
+                    success: function (backData) {
+                        console.log(backData);
+
+                        if (backData.code == 200) {
+                            $('.breadcrumb a:eq(1)').text(backData.data.category);//分类
+                            $('.article_title').text(backData.data.title);//标题
+                            $('.article_con').html(backData.data.content);//文章内容
+                            //判断是否存在上一篇文章
+                            if (backData.data.prev != null) {
+                                $('.article_links a:eq(0)').text(backData.data.prev.title).attr('href', './article.html?id=' + backData.data.prev.id);//设置上一篇文章
+                            } else {
+                                $('.article_links a:eq(0)').text('没有上一篇');
+                            }
+                            //判断下一篇文章是否存在
+                            if (backData.data.next != null) {
+                                $('.article_links a:eq(1)').text(backData.data.next.title).attr('href', './article.html?id=' + backData.data.next.id);//设置下一篇文章
+                            } else {
+                                $('.article_links a:eq(1)').text('没有下一篇');
+                            }
+                            //文章作者、发布时间、阅读、评论量等详情
+                            let resHtml = template('article-list', backData.data);
+                            $('.article_info').html(resHtml);
+                        }
+                    }
+                })
+            }
+
+            // ------------------------------
+
+
+
+        })
+
+    </script>
 
 </body>
 
