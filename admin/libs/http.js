@@ -21,6 +21,10 @@
         comment_pass: baseURL + '/admin/comment/pass', //文章评论通过
         comment_reject: baseURL + '/admin/comment/reject', //文章评论不通过
         comment_delete: baseURL + '/admin/comment/delete', //文章评论删除
+        main_count: baseURL + '/admin/data/info', //获取统计数据
+        day_addAarticle: baseURL + '/admin/data/article', //日新增文章数量统计
+        type_article: baseURL + '/admin/data/category', //各类型文章数量统计
+        day_readArticle: baseURL + '/admin/data/visit' //日文章访问量
     };
     //暴露接口给window
     w.BigNew = BigNew;
