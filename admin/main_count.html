@@ -166,59 +166,92 @@
         $.ajax({
             url: BigNew.type_article,
             success: function (backData) {
-                if(backData.code==200){
-                    // console.log(backData);
-                    
+                if (backData.code == 200) {
+                    //用来储存文章分类
+                    let type = [];
+                    //用来储存 { value: 335, name: '爱生活' } 的数据
+                    let data = [];
+                    //储存颜色
+                    let color = [];
+                    //遍历backData.date，为type数组添加数据
+                    for (let i = 0; i < backData.date.length; i++) {
+                        type.push(backData.date[i].name);
+                    }
+                    //遍历backData.date，为data数组添加数据
+                    for (let key in backData.date) {
+                        let obj = {};
+                        obj.value = backData.date[key].articles;
+                        obj.name = backData.date[key].name;
+                        data.push(obj);
+                    }
+                    //随机生成 backData.date.length 个颜色，储存在color数组中
+                    let num = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f'];
+                    for (let j = 0; j < backData.date.length; j++) {
+                        let colc = '#';
+                        for (let i = 0; i < 6; i++) {
+                            //随机生成一个0~15的数
+                            let numbe = Math.ceil(Math.random() * 15);
+                            colc += num[numbe];
+                        }
+                        color.push(colc);
+                    }
+
+                    //调用渲染图标的getData()方法
+                    getData(type, color, data);
                 }
             }
         })
 
-        // 基于准备好的dom，初始化echarts实例
-        var myChart1 = echarts.init(document.getElementById('pie_show'));
+        //封装一个渲染图表的方法
+        function getData(type, color, data) {
+            // 基于准备好的dom，初始化echarts实例
+            var myChart1 = echarts.init(document.getElementById('pie_show'));
 
-        option1 = {
-            title: {
-                left: 'center',
-                text: '分类文章数量比',
-            },
-            tooltip: {
-                trigger: 'item',
-                formatter: "{a} <br/>{b}: {c} ({d}%)"
-            },
-            legend: {
-                orient: 'horizontal',
-                x: 'center',
-                data: ['爱生活', '趣美味', '爱旅行', '爱电影', '爱游泳'],
-                top: 30
-            },
-            color: ['#5885e8', '#13cfd5', '#00ce68', '#ff9565', '#20ff19'],
-            series: [
-                {
-                    name: '分类名称',
-                    type: 'pie',
-                    radius: ['50%', '70%'],
-                    avoidLabelOverlap: false,
-                    label: {
-                        emphasis: {
-                            show: true,
-                            textStyle: {
-                                fontSize: '30',
-                                fontWeight: 'bold'
+            option1 = {
+                title: {
+                    left: 'center',
+                    text: '分类文章数量比',
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: "{a} <br/>{b}: {c} ({d}%)"
+                },
+                legend: {
+                    type: 'scroll',
+                    left:32,
+                    orient: 'vertical',
+                    data: data.legendData,
+                    selected: data.selected,
+                    orient: 'horizontal',
+                    x: 'center',
+                    data: type,
+                    top: 30
+                },
+                color: color,
+                series: [
+                    {
+                        name: '分类名称',
+                        type: 'pie',
+                        radius: ['50%', '70%'],
+                        center: ['52%', '60%'],
+                        avoidLabelOverlap: false,
+                        label: {
+                            emphasis: {
+                                show: true,
+                                textStyle: {
+                                    fontSize: '30',
+                                    fontWeight: 'bold'
+                                }
                             }
-                        }
-                    },
-                    data: [
-                        { value: 335, name: '爱生活' },
-                        { value: 310, name: '趣美味' },
-                        { value: 234, name: '爱旅行' },
-                        { value: 135, name: '爱电影' },
-                        { value: 548, name: '爱游泳' }
-                    ]
-                }
-            ]
-        };
-        // 使用刚指定的配置项和数据显示图表。
-        myChart1.setOption(option1);
+                        },
+                        data: data
+                    }
+                ]
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart1.setOption(option1);
+        }
+
     </script>
     <!-- 柱状图 -->
     <script>
